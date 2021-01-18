@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:pfile/pfile.dart';
 
 class FilePickerDemo extends StatefulWidget {
   @override
@@ -11,7 +12,7 @@ class FilePickerDemo extends StatefulWidget {
 class _FilePickerDemoState extends State<FilePickerDemo> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String _fileName;
-  List<PlatformFile> _paths;
+  List<PFile> _paths;
   String _directoryPath;
   String _extension;
   bool _loadingPath = false;
@@ -32,11 +33,24 @@ class _FilePickerDemoState extends State<FilePickerDemo> {
       _paths = (await FilePicker.platform.pickFiles(
         type: _pickingType,
         allowMultiple: _multiPick,
+        withReadStream: true,
         allowedExtensions: (_extension?.isNotEmpty ?? false)
             ? _extension?.replaceAll(' ', '')?.split(',')
             : null,
       ))
           ?.files;
+      _paths.forEach((element) async {
+        var start = DateTime.now();
+        var size = 0;
+        ByteData d;
+        await element.openStream().forEach((_) {
+          size += _.length;
+        });
+        // var size = 0;
+
+        print(
+            "Streamed ${size ~/ (1024 * 1024)} in ${DateTime.now().difference(start).inMilliseconds}ms");
+      });
     } on PlatformException catch (e) {
       print("Unsupported operation" + e.toString());
     } catch (ex) {

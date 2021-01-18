@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:file_picker/src/platform_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:pfile/native/pfile_native.dart';
 
 import 'file_picker_result.dart';
 
@@ -18,10 +18,16 @@ final MethodChannel _channel = MethodChannel(
 const EventChannel _eventChannel =
     EventChannel('miguelruivo.flutter.plugins.filepickerevent');
 
+class FilePickerPlugin {
+  static void registerPlugin() => FilePicker.platform = FilePickerIO.ioPlatform;
+}
+
 /// An implementation of [FilePicker] that uses method channels.
 class FilePickerIO extends FilePicker {
   static const String _tag = 'MethodChannelFilePicker';
   static StreamSubscription _eventSubscription;
+
+  static final FilePickerIO ioPlatform = FilePickerIO();
 
   @override
   Future<FilePickerResult> pickFiles({
@@ -96,18 +102,9 @@ class FilePickerIO extends FilePicker {
         return null;
       }
 
-      final List<PlatformFile> platformFiles = <PlatformFile>[];
-
-      for (final platformFileMap in result) {
-        platformFiles.add(
-          PlatformFile.fromMap(
-            platformFileMap,
-            readStream: withReadStream
-                ? File(platformFileMap['path']).openRead()
-                : null,
-          ),
-        );
-      }
+      final platformFiles = [
+        for (final f in result) NativePFile(File(f['path'] as String)),
+      ];
 
       return FilePickerResult(platformFiles);
     } on PlatformException catch (e) {

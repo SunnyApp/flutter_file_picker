@@ -1,11 +1,11 @@
-import 'package:file_picker/src/platform_file.dart';
 import 'package:flutter/foundation.dart';
+import 'package:pfile/pfile.dart';
 
 class FilePickerResult {
   const FilePickerResult(this.files);
 
   /// Picked files.
-  final List<PlatformFile> files;
+  final List<PFile> files;
 
   /// If this pick contains only a single resource.
   bool get isSinglePick => files.length == 1;

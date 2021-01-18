@@ -8,12 +8,13 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-    
+  pfile: ^0.4.4+3
+  pedantic: ^1.9.2
   flutter_plugin_android_lifecycle: ^1.0.6
   plugin_platform_interface: ^1.0.1 
 
 environment:
-  sdk: ">=2.0.0 <3.0.0"
+  sdk: ">=2.3.0 <3.0.0"
   flutter: ">=1.10.0 <2.0.0"
 
 flutter:

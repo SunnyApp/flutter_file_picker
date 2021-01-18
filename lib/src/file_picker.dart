@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'file_picker_io.dart';
 import 'file_picker_result.dart';
 
 enum FileType {
@@ -20,6 +19,8 @@ enum FilePickerStatus {
   done,
 }
 
+
+
 /// The interface that implementations of file_picker must implement.
 ///
 /// Platform implementations should extend this class rather than implement it as `file_picker`
@@ -32,7 +33,7 @@ abstract class FilePicker extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static FilePicker _instance = FilePickerIO();
+  static FilePicker _instance;
 
   static FilePicker get platform => _instance;
 

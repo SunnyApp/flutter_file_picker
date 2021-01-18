@@ -4,24 +4,30 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:pfile/pfile.dart';
+import 'package:pfile/web/pfile_web.dart';
 
 import 'file_picker_result.dart';
 import 'platform_file.dart';
+
+class FilePickerPlugin {
+  static void registerPlugin() => FilePicker.platform = FilePickerWeb.webPlatform;
+}
 
 class FilePickerWeb extends FilePicker {
   Element _target;
   final String _kFilePickerInputsDomId = '__file_picker_web-file-input';
 
-  final int _readStreamChunkSize = 1000 * 1000; // 1 MB
+  final int _readStreamChunkSize = 1000 * 5000; // 1 MB
 
-  static final FilePickerWeb platform = FilePickerWeb._();
+  static final FilePickerWeb webPlatform = FilePickerWeb._();
 
   FilePickerWeb._() {
     _target = _ensureInitialized(_kFilePickerInputsDomId);
   }
 
-  static void registerWith(Registrar registrar) {
-    FilePicker.platform = platform;
+  static void registerWith(Registrar reg) {
+    FilePickerPlugin.registerPlugin();
   }
 
   /// Initializes a DOM container where we can host input elements.
@@ -47,8 +53,7 @@ class FilePickerWeb extends FilePicker {
     bool withData = true,
     bool withReadStream = false,
   }) async {
-    final Completer<List<PlatformFile>> filesCompleter =
-        Completer<List<PlatformFile>>();
+    var filesCompleter = Completer<List<PFile>>();
 
     String accept = _fileType(type, allowedExtensions);
     InputElement uploadInput = FileUploadInputElement();
@@ -64,48 +69,11 @@ class FilePickerWeb extends FilePicker {
       changeEventTriggered = true;
 
       final List<File> files = uploadInput.files;
-      final List<PlatformFile> pickedFiles = [];
+      final pickedFiles = [
+        for (var f in files) WebPFile(f),
+      ];
 
-      void addPickedFile(
-        File file,
-        Uint8List bytes,
-        String path,
-        Stream<List<int>> readStream,
-      ) {
-        pickedFiles.add(PlatformFile(
-          name: file.name,
-          path: path,
-          size: bytes != null ? bytes.length ~/ 1024 : file.size,
-          bytes: bytes,
-          readStream: readStream,
-        ));
-
-        if (pickedFiles.length >= files.length) {
-          filesCompleter.complete(pickedFiles);
-        }
-      }
-
-      files.forEach((File file) {
-        if (withReadStream) {
-          addPickedFile(file, null, null, _openFileReadStream(file));
-          return;
-        }
-
-        if (!withData) {
-          final FileReader reader = FileReader();
-          reader.onLoadEnd.listen((e) {
-            addPickedFile(file, null, reader.result, null);
-          });
-          reader.readAsDataUrl(file);
-          return;
-        }
-
-        final FileReader reader = FileReader();
-        reader.onLoadEnd.listen((e) {
-          addPickedFile(file, reader.result, null, null);
-        });
-        reader.readAsArrayBuffer(file);
-      });
+      filesCompleter.complete(pickedFiles);
     }
 
     uploadInput.onChange.listen(changeEventListener);
@@ -148,6 +116,7 @@ class FilePickerWeb extends FilePicker {
     final reader = FileReader();
 
     int start = 0;
+    var startTime = DateTime.now();
     while (start < file.size) {
       final end = start + _readStreamChunkSize > file.size
           ? file.size
@@ -158,5 +127,8 @@ class FilePickerWeb extends FilePicker {
       yield reader.result;
       start += _readStreamChunkSize;
     }
+    var duration = DateTime.now().difference(startTime);
+    print(
+        "Took $duration to load ${file.name} (${file.size ~/ (1024 * 1024)}kb)");
   }
 }
