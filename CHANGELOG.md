@@ -1,3 +1,8 @@
+## [3.1.4-nullsafety.1]
+ * Updated version
+Added fastlane
+Updated name to pfile_picker and made it null-safe
+
 ## 2.1.4
 iOS: Fixes iOS ViewController which is nil when UIWindow.rootViewController have changed. ([#525](https://github.com/miguelpruivo/flutter_file_picker/issues/525)). Thank you @devcxm. 
 
