@@ -6,7 +6,7 @@ environment:
   sdk: '>=2.12.0 <3.0.0'
   flutter: '>=1.10.0 <2.0.0'
 dependencies: 
-  pfile: ^1.0.1+2
+  pfile: ^2.0.1-nullsafety.3
   pedantic: ^1.11.0
   flutter_plugin_android_lifecycle: ^2.0.0
   plugin_platform_interface: ^2.0.0
