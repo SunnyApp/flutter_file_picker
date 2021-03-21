@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:html';
 import 'dart:typed_data';
 
-import 'package:file_picker/file_picker.dart';
+import 'file_picker.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:pfile/pfile.dart';
 import 'package:pfile/web/pfile_web.dart';
@@ -11,11 +11,12 @@ import 'file_picker_result.dart';
 import 'platform_file.dart';
 
 class FilePickerPlugin {
-  static void registerPlugin() => FilePicker.platform = FilePickerWeb.webPlatform;
+  static void registerPlugin() =>
+      FilePicker.platform = FilePickerWeb.webPlatform;
 }
 
 class FilePickerWeb extends FilePicker {
-  Element _target;
+  late Element _target;
   final String _kFilePickerInputsDomId = '__file_picker_web-file-input';
 
   final int _readStreamChunkSize = 1000 * 5000; // 1 MB
@@ -32,12 +33,12 @@ class FilePickerWeb extends FilePicker {
 
   /// Initializes a DOM container where we can host input elements.
   Element _ensureInitialized(String id) {
-    Element target = querySelector('#$id');
+    Element? target = querySelector('#$id');
     if (target == null) {
       final Element targetElement = Element.tag('flt-file-picker-inputs')
         ..id = id;
 
-      querySelector('body').children.add(targetElement);
+      querySelector('body')!.children.add(targetElement);
       target = targetElement;
     }
     return target;
@@ -46,17 +47,17 @@ class FilePickerWeb extends FilePicker {
   @override
   Future<FilePickerResult> pickFiles({
     FileType type = FileType.any,
-    List<String> allowedExtensions,
+    List<String>? allowedExtensions,
     bool allowMultiple = false,
-    Function(FilePickerStatus) onFileLoading,
-    bool allowCompression,
-    bool withData = true,
-    bool withReadStream = false,
+    Function(FilePickerStatus)? onFileLoading,
+    bool? allowCompression,
+    bool? withData = true,
+    bool? withReadStream = false,
   }) async {
     var filesCompleter = Completer<List<PFile>>();
 
     String accept = _fileType(type, allowedExtensions);
-    InputElement uploadInput = FileUploadInputElement();
+    InputElement uploadInput = FileUploadInputElement() as InputElement;
     uploadInput.draggable = true;
     uploadInput.multiple = allowMultiple;
     uploadInput.accept = accept;
@@ -68,7 +69,7 @@ class FilePickerWeb extends FilePicker {
       }
       changeEventTriggered = true;
 
-      final List<File> files = uploadInput.files;
+      final List<File> files = uploadInput.files!;
       final pickedFiles = [
         for (var f in files) WebPFile(f),
       ];
@@ -87,7 +88,7 @@ class FilePickerWeb extends FilePicker {
     return FilePickerResult(await filesCompleter.future);
   }
 
-  static String _fileType(FileType type, List<String> allowedExtensions) {
+  static String _fileType(FileType type, List<String>? allowedExtensions) {
     switch (type) {
       case FileType.any:
         return '';
@@ -105,8 +106,8 @@ class FilePickerWeb extends FilePicker {
         return 'video/*|image/*';
 
       case FileType.custom:
-        return allowedExtensions.fold(
-            '', (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next');
+        return allowedExtensions!
+            .fold('', (prev, next) => '${prev.isEmpty ? '' : '$prev,'} .$next');
         break;
     }
     return '';
@@ -124,7 +125,7 @@ class FilePickerWeb extends FilePicker {
       final blob = file.slice(start, end);
       reader.readAsArrayBuffer(blob);
       await reader.onLoad.first;
-      yield reader.result;
+      yield reader.result as List<int>;
       start += _readStreamChunkSize;
     }
     var duration = DateTime.now().difference(startTime);

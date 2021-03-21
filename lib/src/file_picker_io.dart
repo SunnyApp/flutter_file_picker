@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
+import 'file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:pfile/native/pfile_native.dart';
@@ -25,19 +25,19 @@ class FilePickerPlugin {
 /// An implementation of [FilePicker] that uses method channels.
 class FilePickerIO extends FilePicker {
   static const String _tag = 'MethodChannelFilePicker';
-  static StreamSubscription _eventSubscription;
+  static StreamSubscription? _eventSubscription;
 
   static final FilePickerIO ioPlatform = FilePickerIO();
 
   @override
-  Future<FilePickerResult> pickFiles({
+  Future<FilePickerResult?> pickFiles({
     FileType type = FileType.any,
-    List<String> allowedExtensions,
-    Function(FilePickerStatus) onFileLoading,
-    bool allowCompression = true,
+    List<String>? allowedExtensions,
+    Function(FilePickerStatus)? onFileLoading,
+    bool? allowCompression = true,
     bool allowMultiple = false,
-    bool withData = false,
-    bool withReadStream = false,
+    bool? withData = false,
+    bool? withReadStream = false,
   }) =>
       _getPath(
         type,
@@ -50,11 +50,11 @@ class FilePickerIO extends FilePicker {
       );
 
   @override
-  Future<bool> clearTemporaryFiles() async =>
+  Future<bool?> clearTemporaryFiles() async =>
       _channel.invokeMethod<bool>('clear');
 
   @override
-  Future<String> getDirectoryPath() async {
+  Future<String?> getDirectoryPath() async {
     try {
       return await _channel.invokeMethod('dir', {});
     } on PlatformException catch (ex) {
@@ -66,14 +66,14 @@ class FilePickerIO extends FilePicker {
     return null;
   }
 
-  Future<FilePickerResult> _getPath(
+  Future<FilePickerResult?> _getPath(
     FileType fileType,
     bool allowMultipleSelection,
-    bool allowCompression,
-    List<String> allowedExtensions,
-    Function(FilePickerStatus) onFileLoading,
-    bool withData,
-    bool withReadStream,
+    bool? allowCompression,
+    List<String>? allowedExtensions,
+    Function(FilePickerStatus)? onFileLoading,
+    bool? withData,
+    bool? withReadStream,
   ) async {
     final String type = describeEnum(fileType);
     if (type != 'custom' && (allowedExtensions?.isNotEmpty ?? false)) {
@@ -91,7 +91,7 @@ class FilePickerIO extends FilePicker {
             );
       }
 
-      final List<Map> result = await _channel.invokeListMethod(type, {
+      final List<Map>? result = await _channel.invokeListMethod(type, {
         'allowMultipleSelection': allowMultipleSelection,
         'allowedExtensions': allowedExtensions,
         'allowCompression': allowCompression,
