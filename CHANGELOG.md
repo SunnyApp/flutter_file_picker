@@ -1,3 +1,6 @@
+## [3.1.4-nullsafety.2]
+ * Updated to pfile nullsafety
+
 ## [3.1.4-nullsafety.1]
  * Updated version
 Added fastlane
