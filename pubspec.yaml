@@ -1,12 +1,12 @@
 name: pfile_picker
-version: 3.1.4-nullsafety.2
+version: 3.1.4
 homepage: https://github.com/miguelpruivo/plugins_flutter_file_picker
 description: A package that allows you to use a native file explorer to pick single or multiple absolute file paths, with extension filtering support.
 environment: 
   sdk: '>=2.12.0 <3.0.0'
   flutter: '>=1.10.0 <2.0.0'
-dependencies: 
-  pfile: ^2.0.1-nullsafety.3
+dependencies:
+  pfile: ^2.1.0+3
   pedantic: ^1.11.0
   flutter_plugin_android_lifecycle: ^2.0.0
   plugin_platform_interface: ^2.0.0
