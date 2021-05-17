@@ -1,3 +1,6 @@
+## [3.1.4+1]
+ * Updated dependencies
+
 ## [3.1.4-nullsafety.2]
  * Updated to pfile nullsafety
 
